@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
@@ -11,12 +12,27 @@ import (
 func main() {
 	proxyURL := os.Getenv("Proxy_URL")
 	target, _ := url.Parse(proxyURL)
-	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	r := gin.Default()
-	r.Any("/*any", func(c *gin.Context) {
-		proxy.ServeHTTP(c.Writer, c.Request)
+
+	addTransparentProxyRoute(r, "/chatanywhere/*path", target)
+	addTransparentProxyRoute(r, "/ohmygpt/*path", target)
+	r.NoRoute(func(c *gin.Context) {
+		proxy(c.Writer, c.Request, target)
 	})
 
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run()
+}
+
+// 添加透明代理路由
+func addTransparentProxyRoute(r *gin.Engine, routePath string, target *url.URL) {
+	r.Any(routePath, func(c *gin.Context) {
+		proxy(c.Writer, c.Request, target)
+	})
+}
+
+// 透明代理
+func proxy(w http.ResponseWriter, r *http.Request, target *url.URL) {
+	proxy := httputil.NewSingleHostReverseProxy(target)
+	proxy.ServeHTTP(w, r)
 }
