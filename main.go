@@ -12,27 +12,30 @@ import (
 func main() {
 	proxyURL := os.Getenv("Proxy_URL")
 	target, _ := url.Parse(proxyURL)
+	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	r := gin.Default()
 
-	addTransparentProxyRoute(r, "/chatanywhere/*path", target)
-	addTransparentProxyRoute(r, "/ohmygpt/*path", target)
+	addTransparentReverseProxyRoute(r, "/chatanywhere/*path", "https://api.chatanywhere.cn")
+	addTransparentReverseProxyRoute(r, "/ohmygpt/*path", "https://api.ohmygpt.com")
 	r.NoRoute(func(c *gin.Context) {
-		proxy(c.Writer, c.Request, target)
+		proxy.ServeHTTP(c.Writer, c.Request)
 	})
 
 	r.Run()
 }
 
-// 添加透明代理路由
-func addTransparentProxyRoute(r *gin.Engine, routePath string, target *url.URL) {
-	r.Any(routePath, func(c *gin.Context) {
-		proxy(c.Writer, c.Request, target)
-	})
-}
-
-// 透明代理
-func proxy(w http.ResponseWriter, r *http.Request, target *url.URL) {
+// 添加透明反向代理路由
+func addTransparentReverseProxyRoute(r *gin.Engine, routePath string, targetURL string) {
+	target, _ := url.Parse(targetURL)
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.ServeHTTP(w, r)
+	proxy.ModifyResponse = func(resp *http.Response) error {
+		resp.Header.Del("Server")
+		return nil
+	}
+
+	r.Any(routePath, func(c *gin.Context) {
+		c.Request.URL.Path = c.Param("path")
+		proxy.ServeHTTP(c.Writer, c.Request)
+	})
 }
