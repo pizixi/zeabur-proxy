@@ -34,6 +34,8 @@ func addReverseProxyRoute(r *gin.Engine, routePath string, targetURL string) {
 
 		// Add X-Forwarded-For header
 		c.Request.Header.Add("X-Forwarded-For", c.ClientIP())
+		c.Request.Header.Add("X-Real-IP", c.ClientIP())
+		c.Request.Header.Add("X-Forwarded-Proto", c.Request.URL.Scheme)
 
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
