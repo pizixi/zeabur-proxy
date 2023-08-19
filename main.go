@@ -14,23 +14,9 @@ func main() {
 	proxy := httputil.NewSingleHostReverseProxy(target)
 
 	r := gin.Default()
-
-	addReverseProxyRoute(r, "/chatanywhere/*path", "https://api.chatanywhere.cn")
-	addReverseProxyRoute(r, "/ohmygpt/*path", "https://api.ohmygpt.com")
-	r.NoRoute(func(c *gin.Context) {
+	r.Any("/*any", func(c *gin.Context) {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
 
-	r.Run()
-}
-
-// 添加反向代理路由
-func addReverseProxyRoute(r *gin.Engine, routePath string, targetURL string) {
-	target, _ := url.Parse(targetURL)
-	proxy := httputil.NewSingleHostReverseProxy(target)
-
-	r.Any(routePath, func(c *gin.Context) {
-		c.Request.URL.Path = c.Param("path")
-		proxy.ServeHTTP(c.Writer, c.Request)
-	})
+	r.Run() // listen and serve on 0.0.0.0:8080
 }
