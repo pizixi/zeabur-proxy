@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
@@ -16,8 +15,8 @@ func main() {
 
 	r := gin.Default()
 
-	addTransparentReverseProxyRoute(r, "/chatanywhere/*path", "https://api.chatanywhere.cn")
-	addTransparentReverseProxyRoute(r, "/ohmygpt/*path", "https://api.ohmygpt.com")
+	addReverseProxyRoute(r, "/chatanywhere/*path", "https://api.chatanywhere.cn")
+	addReverseProxyRoute(r, "/ohmygpt/*path", "https://api.ohmygpt.com")
 	r.NoRoute(func(c *gin.Context) {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
@@ -25,17 +24,17 @@ func main() {
 	r.Run()
 }
 
-// 添加透明反向代理路由
-func addTransparentReverseProxyRoute(r *gin.Engine, routePath string, targetURL string) {
+// 添加反向代理路由
+func addReverseProxyRoute(r *gin.Engine, routePath string, targetURL string) {
 	target, _ := url.Parse(targetURL)
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	proxy.ModifyResponse = func(resp *http.Response) error {
-		resp.Header.Del("Server")
-		return nil
-	}
 
 	r.Any(routePath, func(c *gin.Context) {
 		c.Request.URL.Path = c.Param("path")
+
+		// Add X-Forwarded-For header
+		c.Request.Header.Add("X-Forwarded-For", c.ClientIP())
+
 		proxy.ServeHTTP(c.Writer, c.Request)
 	})
 }
