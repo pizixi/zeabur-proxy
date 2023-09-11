@@ -15,9 +15,10 @@ func main() {
 	proxySites := map[string]string{
 		"/reproxy-workergpt/*any": "https://workergpt.cn",
 		"/reproxy-eqing/*any":     "https://next.eqing.tech",
-		"/reproxy-miyadns/*any":   "https://www.miyadns.com",
-		"/reproxy-lbbai/*any":     "https://postapi.lbbai.cc",
-		"/reproxy-mixerbox/*any":  "https://chatai.mixerbox.com",
+		// "/reproxy-miyadns/*any":   "https://www.miyadns.com",
+		"/reproxy-chatanywhere/*any": "https://api.chatanywhere.cn",
+		"/reproxy-lbbai/*any":        "https://postapi.lbbai.cc",
+		"/reproxy-mixerbox/*any":     "https://chatai.mixerbox.com",
 	}
 
 	for routePath, targetURL := range proxySites {
