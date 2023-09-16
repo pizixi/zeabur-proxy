@@ -43,6 +43,9 @@ func main() {
 			// 设置请求的Host头
 			c.Request.Host = target.Host
 
+			// 设置特定的请求头，例如添加一个名为"Custom-Header"的请求头
+			c.Request.Header.Set("http_authheader", "EE43ED6B-62E2-61B8-1680-A596ADC257E5")
+
 			proxy.ServeHTTP(c.Writer, c.Request)
 		})
 	}
