@@ -43,6 +43,9 @@ func main() {
 			// 设置请求的Host头
 			c.Request.Host = target.Host
 
+			// 添加一個 HTTP 頭部
+			c.Request.Header.Add("X-API-Key", "94E160EA-F20D-0123-D7B9-DBE77FB345EF")
+
 			proxy.ServeHTTP(c.Writer, c.Request)
 		})
 	}
