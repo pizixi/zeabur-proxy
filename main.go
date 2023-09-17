@@ -43,8 +43,15 @@ func main() {
 			// 设置请求的Host头
 			c.Request.Host = target.Host
 
-			// 添加一個 HTTP 頭部
-			c.Request.Header.Add("X-API-Key", "94E160EA-F20D-0123-D7B9-DBE77FB345EF")
+			director := func(req *http.Request) {
+				req = c.Request
+				req.URL.Scheme = target.Scheme
+				req.URL.Host = target.Host
+				req.URL.Path = target.Path + c.Param("any")
+				// 添加一個 HTTP 頭部
+				req.Header.Add("X-API-Key", "94E160EA-F20D-0123-D7B9-DBE77FB345E")
+			}
+			proxy := &httputil.ReverseProxy{Director: director}
 
 			proxy.ServeHTTP(c.Writer, c.Request)
 		})
