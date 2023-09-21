@@ -13,6 +13,7 @@ func main() {
 	r := gin.Default()
 
 	proxySites := map[string]string{
+		"/reproxy-openai/*any":    "https://api.openai.com",
 		"/reproxy-workergpt/*any": "https://workergpt.cn",
 		"/reproxy-eqing/*any":     "https://next.eqing.tech",
 		// "/reproxy-miyadns/*any":   "https://www.miyadns.com",
