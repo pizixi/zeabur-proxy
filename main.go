@@ -32,7 +32,7 @@ func main() {
 			res.Header.Set("Access-Control-Allow-Origin", "*")
 			res.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			res.Header.Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With")
-			res.Header.Set("Content-Type", "text/event-stream")
+			// res.Header.Set("Content-Type", "text/event-stream")
 			res.Header.Set("Cache-Control", "no-cache")
 			res.Header.Set("Connection", "keep-alive")
 			return nil
