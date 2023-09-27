@@ -26,39 +26,26 @@ func main() {
 
 	for routePath, targetURL := range proxySites {
 		target, _ := url.Parse(targetURL)
-		proxy := &httputil.ReverseProxy{
-			Director: func(req *http.Request) {
-				req.URL.Scheme = target.Scheme
-				req.URL.Host = target.Host
-			},
-			Transport: &http.Transport{
-				Proxy: http.ProxyFromEnvironment,
-			},
-			ModifyResponse: func(res *http.Response) error {
-				// 添加CORS响应头
-				res.Header.Set("Access-Control-Allow-Origin", "*")
-				res.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-				res.Header.Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With")
-				// res.Header.Set("Content-Type", "text/event-stream")
-				res.Header.Set("Cache-Control", "no-cache")
-				res.Header.Set("Connection", "keep-alive")
-				return nil
-			},
+		proxy := httputil.NewSingleHostReverseProxy(target)
+
+		// 修改代理响应
+		proxy.ModifyResponse = func(res *http.Response) error {
+			// 添加CORS响应头
+			res.Header.Set("Access-Control-Allow-Origin", "*")
+			res.Header.Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			res.Header.Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization, X-Requested-With")
+			// res.Header.Set("Content-Type", "text/event-stream")
+			res.Header.Set("Cache-Control", "no-cache")
+			res.Header.Set("Connection", "keep-alive")
+			return nil
 		}
 
 		r.Any(routePath, func(c *gin.Context) {
 			// 附加原始请求路径到目标 URL
 			c.Request.URL.Path = target.Path + c.Param("any")
+			// 设置请求的Host头
+			c.Request.Host = target.Host
 
-			// Use a new http client with check for redirect
-			client := &http.Client{
-				CheckRedirect: func(req *http.Request, via []*http.Request) error {
-					return http.ErrUseLastResponse
-				},
-				Transport: proxy.Transport,
-			}
-
-			proxy.Transport = client.Transport
 			proxy.ServeHTTP(c.Writer, c.Request)
 		})
 	}
