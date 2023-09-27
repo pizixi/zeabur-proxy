@@ -20,6 +20,8 @@ func main() {
 		"/reproxy-chatanywhere/*any": "https://api.chatanywhere.cn",
 		"/reproxy-lbbai/*any":        "https://postapi.lbbai.cc",
 		"/reproxy-mixerbox/*any":     "https://chatai.mixerbox.com",
+		"/reproxy-nnwlink/*any":      "https://api.mmw1984.link",
+		"/reproxy-openkey/*any":      "https://openkey.cloud",
 	}
 
 	for routePath, targetURL := range proxySites {
